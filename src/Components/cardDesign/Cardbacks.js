@@ -1,14 +1,16 @@
 export default function Cardbacks() {
     return (<>
-        <div className="w-[70px] relative h-[98px]">
-        <svg className="absolute inset-0 -mx-3 -my-4" width="70pt" height="98pt" version="1.1" viewBox="0 0 512 512">
+        <div className="inline-flex">
+        <div className="w-[80px] relative h-[112px]">
+        <svg width="80pt" height="112pt" version="1.1" viewBox="0 0 512 512">
             <path d="m141.21 10.062h229.61c33.867 0 61.578 27.711 61.578 61.578v368.73c0 33.867-27.711 61.578-61.578 61.578h-229.61c-33.867 0-61.578-27.711-61.578-61.578v-368.73c0-33.867 27.711-61.578 61.578-61.578zm114.8 123.86 84.391 122.08-84.391 122.08-84.391-122.08zm0-34.773 108.43 156.84-108.43 156.84-108.43-156.84z" fill="#161b2e" fillRule="evenodd"/>
         </svg>
         </div>
-        <div className="w-[70px] relative h-[98px]">
-        <svg className="absolute inset-0 -ml-4 -mr-3 -my-4" width="70pt" height="98pt" version="1.1" viewBox="0 0 512 512">
+        <div className="w-[80px] relative h-[112px]">
+        <svg width="80pt" height="112pt" version="1.1" viewBox="0 0 512 512">
             <path d="m141.21 10.062h229.61c33.867 0 61.578 27.711 61.578 61.578v368.73c0 33.867-27.711 61.578-61.578 61.578h-229.61c-33.867 0-61.578-27.711-61.578-61.578v-368.73c0-33.867 27.711-61.578 61.578-61.578zm114.8 123.86 84.391 122.08-84.391 122.08-84.391-122.08zm0-34.773 108.43 156.84-108.43 156.84-108.43-156.84z" fill="#161b2e" fillRule="evenodd"/>
         </svg>
+        </div>
         </div>
     </>)
 }
