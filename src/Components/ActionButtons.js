@@ -15,13 +15,16 @@ export default function ActionButtons(props) {
         <input type="number" min="2" max="100" className="w-40 h-12 ml-2 text-white font-mono focus:outline-none text-center font-semibold rounded-md bg-gray-700 shadow-xl shadow-gray-800" value={props.actionSlider} onChange={e => handleActionInput(e)} />
         </div>
             <div className="inline-flex mt-4 space-x-3 mx-auto">
-            <button className="w-40 h-20 text-white font-mono font-semibold rounded-md bg-gray-900 shadow-xl hover:bg-gray-700 shadow-gray-800">
+            <button onClick={props.fold}
+            className="w-40 h-20 text-white font-mono font-semibold rounded-md bg-gray-900 shadow-xl hover:bg-gray-700 shadow-gray-800">
                 Fold
             </button>
-            <button className="w-40 h-20 text-white font-mono font-semibold rounded-md bg-gray-900 shadow-xl hover:bg-gray-700 shadow-gray-800">
+            <button onClick={props.fetchCardRolls}
+            className="w-40 h-20 text-white font-mono font-semibold rounded-md bg-gray-900 shadow-xl hover:bg-gray-700 shadow-gray-800">
                 Call
             </button>
-            <button className="w-40 h-20 text-white font-mono font-semibold rounded-md bg-gray-900 shadow-xl hover:bg-gray-700 shadow-gray-800">
+            <button onClick={props.fetchCardRolls}
+            className="w-40 h-20 text-white font-mono font-semibold rounded-md bg-gray-900 shadow-xl hover:bg-gray-700 shadow-gray-800">
                 Raise {props.actionSlider} bb
             </button>
             </div>

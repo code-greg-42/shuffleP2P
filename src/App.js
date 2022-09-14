@@ -1,3 +1,4 @@
+import ShuffleDao from './contracts/ShuffleDao.sol/ShuffleDao';
 import Card from './Components/Card';
 import ActionButtons from './Components/ActionButtons';
 import Cardbacks from './Components/cardDesign/Cardbacks';
@@ -6,6 +7,9 @@ import TurnRiverCard from './Components/TurnRiverCard';
 import { ethers } from "ethers";
 import { Client } from '@xmtp/xmtp-js';
 import { useState, useEffect, useRef } from 'react';
+import { getSuit, getCard } from './functions/cardFunctions';
+
+const contractAddress = '0x17B803Da3d185053AF0E5006a8D7398019f0ded3';
 
 function modClass(...classes) {
   return classes.filter(Boolean).join(' ')
@@ -17,12 +21,12 @@ function App() {
   const [xmtpConnected, setXmtpConnected] = useState(false);
   const [chatLog, setChatLog] = useState([]);
   const [newMessage, setNewMessage] = useState("");
-  const [startingCardOne, setStartingCardOne] = useState(null);
-  const [startingCardTwo, setStartingCardTwo] = useState(null);
-  const [startingSuitOne, setStartingSuitOne] = useState(null);
-  const [startingSuitTwo, setStartingSuitTwo] = useState(null);
-  const [cardOneShow, setCardOneShow] = useState(false);
-  const [cardTwoShow, setCardTwoShow] = useState(false);
+  //const [startingCardOne, setStartingCardOne] = useState(null);
+  //const [startingCardTwo, setStartingCardTwo] = useState(null);
+  //const [startingSuitOne, setStartingSuitOne] = useState(null);
+  //const [startingSuitTwo, setStartingSuitTwo] = useState(null);
+  //const [cardOneShow, setCardOneShow] = useState(false);
+  //const [cardTwoShow, setCardTwoShow] = useState(false);
   const [chatShow, setChatShow] = useState(false);
   const [actionSlider, setActionSlider] = useState(2);
   const [flopCardRolls, setFlopCardRolls] = useState([]);
@@ -34,6 +38,7 @@ function App() {
   const [riverCardRoll, setRiverCardRoll] = useState(null);
   const [riverSuitRoll, setRiverSuitRoll] = useState(null);
   const [riverActive, setRiverActive] = useState(false);
+  const [street, setStreet] = useState(1);
 
   const chatRef = useRef();
   const sendChatRef = useRef();
@@ -60,6 +65,51 @@ function App() {
     chatRef.current?.scrollIntoView({behavior: 'smooth'});
   }, [chatLog]);
 
+  const fetchCardRolls = async () => {
+      const contract = new ethers.Contract(contractAddress, ShuffleDao.abi, signer);
+      if (street === 1) {
+      const rolls = {};
+      const cardHashes = await contract.getFlopHashes();
+      console.log(cardHashes);
+      const cardRolls = [];
+      const suitRolls = [];
+      for (const hash of cardHashes) {
+      const cardHash = hash.slice(2);
+      const suit = getSuit(cardHash);
+      let cardIndex = getCard(cardHash);
+      cardRolls.push(cardIndex);
+      suitRolls.push(suit);
+      }
+      rolls.cards = cardRolls;
+      rolls.suits = suitRolls;
+      console.log(rolls);
+      setFlopCardRolls(rolls.cards);
+      setFlopSuitRolls(rolls.suits);
+      setFlopActive(true);
+      }
+      if (street === 2) {
+        const cardHashRaw = await contract.getTurnHashes();
+        const cardHash = cardHashRaw.slice(2);
+        console.log(cardHash);
+        let suitRoll = getSuit(cardHash);
+        let cardRoll = getCard(cardHash);
+        setTurnCardRoll(cardRoll);
+        setTurnSuitRoll(suitRoll);
+        setTurnActive(true);
+        }
+      if (street === 3) {
+          const cardHashRaw = await contract.getRiverHashes();
+          const cardHash = cardHashRaw.slice(2);
+          console.log(cardHash);
+          let suitRoll = getSuit(cardHash);
+          let cardRoll = getCard(cardHash);
+          setRiverCardRoll(cardRoll);
+          setRiverSuitRoll(suitRoll);
+          setRiverActive(true);
+        }
+      setStreet(prev => prev + 1);
+  }
+
   const connect = async () => {
     try {
         await connectWallet();
@@ -72,7 +122,7 @@ function App() {
     };
   };
 
-  async function connectWallet() {
+  const connectWallet = async () => {
     try {
         await window.ethereum.request({ method: 'eth_requestAccounts' });
         provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -88,56 +138,68 @@ function App() {
     };
   }
 
-  async function messageSend(e) {
+  const blockTest = async () => {
+    const latestBlock = await provider.getBlockNumber();
+    console.log(latestBlock);
+    const block = await provider.getBlock();
+    console.log(block);
+    const hash1 = ethers.utils.keccak256(block.hash);
+    const hash2 = ethers.utils.keccak256(block.timestamp);
+    const megaHash = hash1.slice(2) + hash2.slice(2);
+    console.log(megaHash);
+    const rand = Math.round(Math.random() * 128);
+    console.log(rand);
+    const megaHashRand = megaHash.slice(rand);
+    console.log(megaHashRand);
+    console.log(megaHash);
+    let firstCard;
+    let ind = megaHashRand.search(/\d/);
+    if (ind === -1) {
+      ind = megaHash.search(/\d/);
+      firstCard = megaHash[ind];
+    } else {
+      firstCard = megaHashRand[ind];
+    }
+    console.log(ind);
+    console.log(firstCard);
+  }
+
+  const blockTest2 = async () => {
+    const block = await provider.getBlock();
+    console.log(block);
+    const hash1 = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(JSON.stringify(block.transactions[0])));
+    const hash2 = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(JSON.stringify(block.transactions[1])));
+    const megaHash = hash1.slice(2) + hash2.slice(2);
+    console.log(megaHash);
+  }
+
+  const blockTest3 = async () => {
+    const block = await provider.getBlock();
+    console.log(block);
+    const hash1 = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(JSON.stringify(block.gasUsed)));
+    const hash2 = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(JSON.stringify(block.extraData)));
+    const megaHash = hash1.slice(2) + hash2.slice(2);
+    console.log(megaHash);
+  }
+
+  const messageSend = async (e) => {
       e.preventDefault();
       await conversation.send(sendChatRef.current.value);
       console.log('message sent!');
       sendChatRef.current.value = "";
   }
 
-  function handleStartingRoll() {
-    let randomStartingCards = [Math.floor(Math.random() * 13), Math.floor(Math.random() * 4), Math.floor(Math.random() * 13), Math.floor(Math.random() * 4)];
-      setStartingCardOne(randomStartingCards[0]);
-      setStartingSuitOne(randomStartingCards[1]);
-      setCardOneShow(true);
-      setStartingCardTwo(randomStartingCards[2]);
-      setStartingSuitTwo(randomStartingCards[3]);
-      setCardTwoShow(true);
-  }
-
-  function handleFlopRoll() {
-    let randomCards = [Math.floor(Math.random() * 13), Math.floor(Math.random() * 4), Math.floor(Math.random() * 13), Math.floor(Math.random() * 4), Math.floor(Math.random() * 13), Math.floor(Math.random() * 4)];
-    setFlopCardRolls([randomCards[0], randomCards[2], randomCards[4]]);
-    setFlopSuitRolls([randomCards[1], randomCards[3], randomCards[5]]);
-    setFlopActive(true);
-  }
-
-  function handleTurnRoll() {
-    let randomRolls = [Math.floor(Math.random() * 13), Math.floor(Math.random() * 4)];
-    setTurnCardRoll(randomRolls[0]);
-    setTurnSuitRoll(randomRolls[1]);
-    setTurnActive(true);
-  }
-
-  function handleRiverRoll() {
-    let randomRolls = [Math.floor(Math.random() * 13), Math.floor(Math.random() * 4)];
-    setRiverCardRoll(randomRolls[0]);
-    setRiverSuitRoll(randomRolls[1]);
-    setRiverActive(true);
-  }
-
   function handleResetHand() {
     setFlopActive(false);
     setTurnActive(false);
     setRiverActive(false);
-    setCardOneShow(false);
-    setCardTwoShow(false);
+    setStreet(1);
   }
 
   return (
     <>
     <div className="w-screen h-screen bg-black">
-    <img className="fixed top-2 left-12" src={require('./media/shuffle-logo-2.png')} alt="site-logo" />
+    <img className="fixed top-0 left-0" src={require('./media/shuffle-logo-2.png')} alt="site-logo" />
     <div className="z-10 fixed inset-0 w-[950px] h-[748px] mx-auto mt-24">
     <div className="h-12 bg-gray-900 rounded-t-xl w-full">
     </div>
@@ -154,36 +216,32 @@ function App() {
     </div>
     <div className="grid absolute bottom-[164px] left-1/2 -translate-x-1/2 space-y-2">
     <div className="inline-flex space-x-2">
-      <Card cardRoll={startingCardOne} suitRoll={startingSuitOne} show={cardOneShow} />
-      <Card cardRoll={startingCardTwo} suitRoll={startingSuitTwo} show={cardTwoShow} />
+      <Card cardRoll={12} suitRoll={0} show={true} />
+      <Card cardRoll={12} suitRoll={1} show={true} />
     </div>
     </div>
     </div>
-    <ActionButtons actionSlider={actionSlider} setActionSlider={setActionSlider} />
+    <ActionButtons actionSlider={actionSlider} setActionSlider={setActionSlider} fetchCardRolls={fetchCardRolls} fold={handleResetHand} />
     </div>
-    <div className="fixed top-0 right-7 grid space-y-7 mt-24 w-1/6">
+    <div className="fixed top-4 right-4 inline-flex w-3/4">
     <button onClick={connect}
-          className="w-full h-16 mr-2 text-green-400 hover:text-white shadow-xl shadow-gray-700 rounded-xl font-mono border border-transparent bg-gray-900">
+          className="w-full h-12 mr-2 text-green-400 hover:text-white shadow-xl border-b-gray-600 shadow-gray-700 rounded-xl font-mono border border-transparent bg-gray-900">
           connect_chat
     </button>
-    <button onClick={handleStartingRoll}
-          className="w-full h-16 mr-2 text-green-400 hover:text-white shadow-xl shadow-gray-700 rounded-xl font-mono border border-transparent bg-gray-900">
-          roll_starting_hand
+    <button onClick={blockTest}
+          className="w-full h-12 mr-2 text-green-400 hover:text-white shadow-xl border-b-gray-600 shadow-gray-700 rounded-xl font-mono border border-transparent bg-gray-900">
+          block_test
     </button>
-    <button onClick={handleFlopRoll}
-          className="w-full h-16 mr-2 text-green-400 hover:text-white shadow-xl shadow-gray-700 rounded-xl font-mono border border-transparent bg-gray-900">
-          roll_flop
+    <button onClick={blockTest2}
+          className="w-full h-12 mr-2 text-green-400 hover:text-white shadow-xl border-b-gray-600 shadow-gray-700 rounded-xl font-mono border border-transparent bg-gray-900">
+          block_test_2
     </button>
-    <button onClick={handleTurnRoll}
-          className="w-full h-16 mr-2 text-green-400 hover:text-white shadow-xl shadow-gray-700 rounded-xl font-mono border border-transparent bg-gray-900">
-          roll_turn
-    </button>
-    <button onClick={handleRiverRoll}
-          className="w-full h-16 mr-2 text-green-400 hover:text-white shadow-xl shadow-gray-700 rounded-xl font-mono border border-transparent bg-gray-900">
-          roll_river
+    <button onClick={blockTest3}
+          className="w-full h-12 mr-2 text-green-400 hover:text-white shadow-xl border-b-gray-600 shadow-gray-700 rounded-xl font-mono border border-transparent bg-gray-900">
+          block_test_3
     </button>
     <button onClick={handleResetHand}
-          className="w-full h-16 mr-2 text-green-400 hover:text-white shadow-xl shadow-gray-700 rounded-xl font-mono border border-transparent bg-gray-900">
+          className="w-full h-12 mr-2 text-green-400 hover:text-white shadow-xl border-b-gray-600 shadow-gray-700 rounded-xl font-mono border border-transparent bg-gray-900">
           reset_hand
     </button>
     </div>
@@ -209,7 +267,7 @@ function App() {
       <div className="flex h-1/5 w-full">
         <input disabled={!xmtpConnected} type="text" ref={sendChatRef} placeholder="enter text here..." className="bg-gray-900 w-3/4 p-2 text-green-400 focus:outline-none shadow-xl shadow-gray-700" />
         <button disabled={!xmtpConnected}
-        className="w-1/4 text-green-400 hover:text-white shadow-xl shadow-gray-700 border border-transparent bg-gray-900">
+        className="w-1/4 text-gray-300 hover:text-white shadow-xl shadow-gray-700 border border-transparent bg-gray-900">
           send_msg
         </button>
       </div>
