@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@noble/hashes": "^1.1.2",
+    "@noble/secp256k1": "^1.7.0",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
@@ -10,6 +12,7 @@
     "autoprefixer": "^10.4.8",
     "buffer": "^6.0.3",
     "ethers": "^5.7.0",
+    "ipfs-core": "^0.16.0",
     "postcss": "^8.4.16",
     "react": "^18.2.0",
     "react-app-rewired": "^2.2.1",

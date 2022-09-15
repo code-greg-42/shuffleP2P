@@ -4,10 +4,13 @@ import ActionButtons from './Components/ActionButtons';
 import Cardbacks from './Components/cardDesign/Cardbacks';
 import FlopCards from './Components/FlopCards';
 import TurnRiverCard from './Components/TurnRiverCard';
+import * as IPFS from 'ipfs-core';
 import { ethers } from "ethers";
 import { Client } from '@xmtp/xmtp-js';
 import { useState, useEffect, useRef } from 'react';
 import { getSuit, getCard } from './functions/cardFunctions';
+import { testSend } from './functions/preflop';
+import { incomingMessage } from './functions/incomingMessage';
 
 const contractAddress = '0x17B803Da3d185053AF0E5006a8D7398019f0ded3';
 
@@ -39,6 +42,9 @@ function App() {
   const [riverSuitRoll, setRiverSuitRoll] = useState(null);
   const [riverActive, setRiverActive] = useState(false);
   const [street, setStreet] = useState(1);
+  const [currCid, setCurrCid] = useState("");
+  const [ipfsInst, setIpfsInst] = useState(null);
+  const [signingPub, setSigningPub] = useState("");
 
   const chatRef = useRef();
   const sendChatRef = useRef();
@@ -138,7 +144,7 @@ function App() {
     };
   }
 
-  const blockTest = async () => {
+  /*const blockTest = async () => {
     const latestBlock = await provider.getBlockNumber();
     console.log(latestBlock);
     const block = await provider.getBlock();
@@ -180,7 +186,7 @@ function App() {
     const hash2 = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(JSON.stringify(block.extraData)));
     const megaHash = hash1.slice(2) + hash2.slice(2);
     console.log(megaHash);
-  }
+  }*/
 
   const messageSend = async (e) => {
       e.preventDefault();
@@ -228,17 +234,13 @@ function App() {
           className="w-full h-12 mr-2 text-green-400 hover:text-white shadow-xl border-b-gray-600 shadow-gray-700 rounded-xl font-mono border border-transparent bg-gray-900">
           connect_chat
     </button>
-    <button onClick={blockTest}
+    <button onClick={() => testSend(address, setCurrCid, setIpfsInst, setSigningPub)}
           className="w-full h-12 mr-2 text-green-400 hover:text-white shadow-xl border-b-gray-600 shadow-gray-700 rounded-xl font-mono border border-transparent bg-gray-900">
-          block_test
+          ipfs_test
     </button>
-    <button onClick={blockTest2}
+    <button onClick={() => incomingMessage(ipfsInst, currCid, signingPub)}
           className="w-full h-12 mr-2 text-green-400 hover:text-white shadow-xl border-b-gray-600 shadow-gray-700 rounded-xl font-mono border border-transparent bg-gray-900">
-          block_test_2
-    </button>
-    <button onClick={blockTest3}
-          className="w-full h-12 mr-2 text-green-400 hover:text-white shadow-xl border-b-gray-600 shadow-gray-700 rounded-xl font-mono border border-transparent bg-gray-900">
-          block_test_3
+          incoming_test
     </button>
     <button onClick={handleResetHand}
           className="w-full h-12 mr-2 text-green-400 hover:text-white shadow-xl border-b-gray-600 shadow-gray-700 rounded-xl font-mono border border-transparent bg-gray-900">
