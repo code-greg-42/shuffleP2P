@@ -4,13 +4,13 @@ import ActionButtons from './Components/ActionButtons';
 import Cardbacks from './Components/cardDesign/Cardbacks';
 import FlopCards from './Components/FlopCards';
 import TurnRiverCard from './Components/TurnRiverCard';
-import * as IPFS from 'ipfs-core';
 import { ethers } from "ethers";
 import { Client } from '@xmtp/xmtp-js';
 import { useState, useEffect, useRef } from 'react';
 import { getSuit, getCard } from './functions/cardFunctions';
 import { testSend } from './functions/preflop';
 import { incomingMessage } from './functions/incomingMessage';
+import { legendBlockRoll, hashBlock, printCards } from './functions/flopHashes';
 
 const contractAddress = '0x17B803Da3d185053AF0E5006a8D7398019f0ded3';
 
@@ -202,6 +202,16 @@ function App() {
     setStreet(1);
   }
 
+  const flopTest = async () => {
+      const blockLength = await provider.getBlockNumber();
+      const blockInfoArr = legendBlockRoll(blockLength);
+      const block = await provider.getBlock(blockInfoArr[0]);
+      console.log(block);
+      const blockHashes = hashBlock(block);
+      console.log(blockHashes);
+      printCards(blockHashes, block, blockInfoArr[1]);
+  }
+
   return (
     <>
     <div className="w-screen h-screen bg-black">
@@ -233,6 +243,10 @@ function App() {
     <button onClick={connect}
           className="w-full h-12 mr-2 text-green-400 hover:text-white shadow-xl border-b-gray-600 shadow-gray-700 rounded-xl font-mono border border-transparent bg-gray-900">
           connect_chat
+    </button>
+    <button onClick={flopTest}
+          className="w-full h-12 mr-2 text-green-400 hover:text-white shadow-xl border-b-gray-600 shadow-gray-700 rounded-xl font-mono border border-transparent bg-gray-900">
+          ethers_flops
     </button>
     <button onClick={() => testSend(address, setCurrCid, setIpfsInst, setSigningPub)}
           className="w-full h-12 mr-2 text-green-400 hover:text-white shadow-xl border-b-gray-600 shadow-gray-700 rounded-xl font-mono border border-transparent bg-gray-900">

@@ -1,13 +1,13 @@
 export function getSuit(hashInput) {
     let hash = hashInput.toLowerCase();
-    if (['0', '1', '2', '3'].includes(hash[0])) {
-        return 0;
-    } else if (['4', '5', '6', '7'].includes(hash[0])) {
-        return 1;
-    } else if (['8', '9', 'a', 'b'].includes(hash[0])) {
-        return 2;
+    if (['0', '1', '2', '3'].includes(hash[2])) {
+        return '0';
+    } else if (['4', '5', '6', '7'].includes(hash[2])) {
+        return '1';
+    } else if (['8', '9', 'a', 'b'].includes(hash[2])) {
+        return '2';
     } else {
-        return 3;
+        return '3';
     }
 }
 
